@@ -101,5 +101,7 @@ int main() {
 
     skolka.PrintAll();
 
+    cout << "ENTER to exit...";
+    cin.get();
     return 0;
 }
