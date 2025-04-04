@@ -1,92 +1,105 @@
 #include <iostream>
 #include <string>
+#include <vector>
+
 using namespace std;
 
 class Child {
 private:
-    int id;
     string name;
+    int id;
     int age;
+    string className;
 public:
-    Child(int i, string n, int a) {
-        id = i;
-        name = n;
-        age = a;
-    }
+    Child(int i, string n, int a, string cls)
+        : id(i), name(n), age(a), className(cls) {}
 
     int GetID() { return id; }
     string GetName() { return name; }
     int GetAge() { return age; }
+    string GetClass() { return className; }
+
+    void SetAge(int newAge) { age = newAge; }
+    void SetClass(string newClass) { className = newClass; }
+
+    void Print() {
+        cout << "Dítě #" << id << ": " << name << ", " << age << " let, třída " << className << endl;
+    }
 };
 
 class Teacher {
 private:
-    int id;
     string name;
+    string className;
 public:
-    Teacher(int i, string n) {
-        id = i;
-        name = n;
-    }
+    Teacher(string n, string cls)
+        : name(n), className(cls) {}
 
-    int GetID() { return id; }
-    string GetName() { return name; }
+    string GetClass() { return className; }
+
+    void Print() {
+        cout << "Učitel: " << name << ", vede třídu " << className << endl;
+    }
 };
 
 class Kindergarten {
 private:
-    Child* children[100];
-    int childCount;
-    Teacher* teachers[10];
-    int teacherCount;
+    vector<Child*> children;
+    vector<Teacher*> teachers;
 public:
-    Kindergarten() {
-        childCount = 0;
-        teacherCount = 0;
+    ~Kindergarten() {
+        for (auto c : children) delete c;
+        for (auto t : teachers) delete t;
     }
 
-    void AddChild(Child* c) {
-        if (childCount < 100) {
-            children[childCount++] = c;
+    void AddChild(int id, string name, int age, string className) {
+        children.push_back(new Child(id, name, age, className));
+    }
+
+    void AddTeacher(string name, string className) {
+        teachers.push_back(new Teacher(name, className));
+    }
+
+    void MoveChildToClass(int id, string newClass) {
+        for (auto c : children) {
+            if (c->GetID() == id) {
+                c->SetClass(newClass);
+                cout << "Dítě " << c->GetName() << " přesunuto do třídy " << newClass << endl;
+            }
         }
     }
 
-    void AddTeacher(Teacher* t) {
-        if (teacherCount < 10) {
-            teachers[teacherCount++] = t;
+    void BirthdayAll() {
+        for (auto c : children) {
+            c->SetAge(c->GetAge() + 1);
         }
+        cout << "Všichni oslavili narozeniny!" << endl;
     }
 
-    void ShowChildren() {
-        cout << "Děti ve školce:" << endl;
-        for (int i = 0; i < childCount; i++) {
-            cout << "- " << children[i]->GetName() << " (věk: " << children[i]->GetAge() << ")" << endl;
-        }
-    }
-
-    void ShowTeachers() {
-        cout << "Učitelé ve školce:" << endl;
-        for (int i = 0; i < teacherCount; i++) {
-            cout << "- " << teachers[i]->GetName() << endl;
-        }
+    void PrintAll() {
+        cout << "\n=== DĚTI ===" << endl;
+        for (auto c : children) c->Print();
+        cout << "\n=== UČITELÉ ===" << endl;
+        for (auto t : teachers) t->Print();
     }
 };
 
 int main() {
-    Kindergarten skolicka;
+    Kindergarten skolka;
 
-    Child* pepa = new Child(1, "Pepa", 4);
-    Child* eliska = new Child(2, "Eliška", 5);
-    skolicka.AddChild(pepa);
-    skolicka.AddChild(eliska);
+    skolka.AddChild(1, "Anička", 4, "Motýlci");
+    skolka.AddChild(2, "Tomáš", 5, "Berušky");
+    skolka.AddChild(3, "Kája", 3, "Motýlci");
 
-    Teacher* paniJana = new Teacher(1, "Paní Jana");
-    skolicka.AddTeacher(paniJana);
+    skolka.AddTeacher("Paní Nováková", "Motýlci");
+    skolka.AddTeacher("Pan Nový", "Berušky");
 
-    skolicka.ShowTeachers();
-    skolicka.ShowChildren();
+    skolka.PrintAll();
 
-    cout << "\nENTER pro ukončení..." << endl;
-    cin.get();
+    skolka.BirthdayAll();
+    skolka.MoveChildToClass(3, "Berušky");
+
+    skolka.PrintAll();
+
     return 0;
 }
